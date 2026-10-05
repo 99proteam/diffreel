@@ -1,6 +1,6 @@
 import { execFile } from "node:child_process";
-import { readFile } from "node:fs/promises";
-import { basename, relative, resolve } from "node:path";
+import { readFile, realpath } from "node:fs/promises";
+import { basename, dirname, join, relative, resolve } from "node:path";
 import { promisify } from "node:util";
 import { detectLang } from "../lang.js";
 import type { Step } from "../types.js";
@@ -40,6 +40,18 @@ async function git(args: string[], cwd: string): Promise<string> {
   }
 }
 
+/**
+ * Resolve symlinks and Windows 8.3 short names (e.g. /var -> /private/var on macOS,
+ * RUNNER~1 -> runneradmin on Windows) so paths from git and from Node compare equal.
+ */
+async function canonical(path: string): Promise<string> {
+  try {
+    return await realpath(resolve(path));
+  } catch {
+    return resolve(path);
+  }
+}
+
 async function revExists(rev: string, cwd: string): Promise<boolean> {
   try {
     await git(["rev-parse", "--verify", "--quiet", `${rev}^{commit}`], cwd);
@@ -74,9 +86,11 @@ export interface GitStepsOptions {
 export async function loadGitSteps(opts: GitStepsOptions): Promise<Step[]> {
   const cwd = resolve(opts.cwd ?? process.cwd());
   const range = parseGitRange(opts.range);
-  const top = (await git(["rev-parse", "--show-toplevel"], cwd)).trim();
+  const top = await canonical((await git(["rev-parse", "--show-toplevel"], cwd)).trim());
   const abs = resolve(cwd, opts.file);
-  const rel = relative(resolve(top), abs).replace(/\\/g, "/");
+  // The file may not exist in the working tree (deleted later), so canonicalize its directory.
+  const canonicalAbs = join(await canonical(dirname(abs)), basename(abs));
+  const rel = relative(top, canonicalAbs).replace(/\\/g, "/");
   if (rel.startsWith("..")) throw new Error(`--file "${opts.file}" is outside the git repository at ${top}.`);
   const lang = detectLang(rel);
   const filename = basename(rel);
