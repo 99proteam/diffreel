@@ -61,7 +61,7 @@
     "./package.json": "./package.json"
   },
   "bin": {
-    "diffreel": "./dist/cli.js"
+    "diffreel": "dist/cli.js"
   },
   "files": [
     "dist",
