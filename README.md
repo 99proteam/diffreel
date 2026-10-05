@@ -1,17 +1,33 @@
-# diffreel
+<h1 align="center">diffreel</h1>
 
-**Turn code changes into smooth animated videos.**
+<p align="center"><b>Turn code changes into smooth animated videos.</b></p>
 
-Give diffreel two versions of a file, a git commit, or a list of steps, and it renders an MP4, WebM or GIF in which the code morphs from one version to the next. Unchanged code slides into its new position, removed code fades out, and new code fades or types in, all with syntax highlighting. Use it for tutorials, YouTube videos, reels, shorts and social posts.
+<p align="center">
+  <a href="https://99proteam.github.io/diffreel/"><b>🎮 Live playground</b></a> ·
+  <a href="#quick-start">Quick start</a> ·
+  <a href="#options">Options</a> ·
+  <a href="examples">Examples</a> ·
+  <a href="https://www.npmjs.com/package/diffreel">npm</a>
+</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/diffreel"><img src="https://img.shields.io/npm/v/diffreel.svg" alt="npm version"></a>
+  <a href="https://www.npmjs.com/package/diffreel"><img src="https://img.shields.io/npm/dm/diffreel.svg" alt="npm downloads"></a>
+  <a href="https://github.com/99proteam/diffreel/actions/workflows/ci.yml"><img src="https://github.com/99proteam/diffreel/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT license"></a>
+</p>
+
+<p align="center">
+  <a href="https://buymeacoffee.com/99proteam"><img src="https://img.shields.io/badge/☕_Sponsor_diffreel-Buy_me_a_coffee-FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=000" alt="Sponsor diffreel on Buy Me a Coffee" height="48"></a>
+</p>
 
 <p align="center">
   <img src="docs/demo.gif" alt="diffreel demo: a bug fix animating from before to after" width="720">
 </p>
 
-[![npm](https://img.shields.io/npm/v/diffreel.svg)](https://www.npmjs.com/package/diffreel)
-[![CI](https://github.com/99proteam/diffreel/actions/workflows/ci.yml/badge.svg)](https://github.com/99proteam/diffreel/actions/workflows/ci.yml)
-[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Buy me a coffee](https://img.shields.io/badge/support-buy%20me%20a%20coffee-ffdd00?logo=buymeacoffee&logoColor=000)](https://buymeacoffee.com/99proteam)
+Give diffreel two versions of a file, a git commit, or a list of steps, and it renders an MP4, WebM or GIF in which the code morphs from one version to the next. Unchanged code slides into its new position, removed code fades out, and new code fades or types in, all with syntax highlighting. Use it for tutorials, YouTube videos, reels, shorts and social posts.
+
+**Try it without installing anything:** the [live playground](https://99proteam.github.io/diffreel/) runs the same engine in your browser. Edit the code, preview the animation, then download a `steps.json` and render it with one command.
 
 - **Token-level magic move:** diffs by line, then by token, so `i <= n` becomes `i < n` by moving the tokens that stayed instead of retyping the line.
 - **Syntax highlighting with [Shiki](https://shiki.style):** all VS Code themes and 200+ languages.
@@ -20,14 +36,40 @@ Give diffreel two versions of a file, a git commit, or a list of steps, and it r
 - **Made for social video:** 16:9, 9:16 reels and 1:1 square presets, captions, window frame, typing effect and change highlights.
 - **Handles long files:** the viewport auto-scrolls to keep the changed region centered.
 
-## Install
+## Quick start
+
+**Requirements:** Node.js 20 or newer ([download](https://nodejs.org)) on Windows, macOS or Linux. ffmpeg is bundled through [`ffmpeg-static`](https://www.npmjs.com/package/ffmpeg-static), so you don't install it yourself.
 
 ```bash
-npm install -g diffreel          # or use npx diffreel ...
-npx playwright install chromium  # one-time: the headless browser used to draw frames
+# 1. One-time setup: download the headless browser diffreel draws frames with
+npx playwright install chromium
+
+# 2. Render your first video
+npx diffreel before.ts after.ts -o out.mp4
 ```
 
-You need Node.js 20 or newer. ffmpeg is bundled through [`ffmpeg-static`](https://www.npmjs.com/package/ffmpeg-static), so you don't install it yourself.
+That's it: `out.mp4` is ready to upload. `npx` downloads diffreel on first use, so no install step is needed.
+
+### Install options
+
+| How | Command | When to use it |
+| --- | --- | --- |
+| No install | `npx diffreel ...` | Trying it out or rendering now and then |
+| Global CLI | `npm install -g diffreel` and then `diffreel ...` | You make videos often |
+| Project dev dependency | `npm install -D diffreel` | Rendering from npm scripts or CI |
+| Library | `npm install diffreel` and then `import { render } from "diffreel"` | Generating videos from your own Node.js code |
+
+As a project dev dependency, add a script to `package.json`:
+
+```json
+{
+  "scripts": {
+    "video": "diffreel docs/steps.json -o docs/tutorial.mp4"
+  }
+}
+```
+
+On Linux servers and CI, install the browser together with its system libraries: `npx playwright install --with-deps chromium`.
 
 ## Three ways to use it
 
@@ -151,7 +193,33 @@ npm run examples   # writes examples/output/*.mp4
 4. **Render.** Each frame state is applied to an HTML page in headless Chromium (Playwright) at 2× scale and captured as a PNG. Identical frames during holds are reused.
 5. **Encode.** Frames are piped into ffmpeg: H.264 for MP4, VP9 for WebM, or a palette-optimized GIF.
 
+## Troubleshooting
+
+| Problem | Fix |
+| --- | --- |
+| `diffreel needs a Chromium browser` | Run `npx playwright install chromium` once. On Linux, add `--with-deps`. |
+| You already have Chrome and don't want another download | Set `DIFFREEL_CHROMIUM_PATH` to your Chrome or Chromium executable. diffreel also tries installed Chrome and Edge automatically. |
+| ffmpeg failed to download (proxy, offline) | Install ffmpeg yourself and set `DIFFREEL_FFMPEG_PATH`, or make sure `ffmpeg` is on your `PATH`. |
+| `Unknown language "..."` | Pass a Shiki language id with `--lang`, for example `ts`, `python`, `sql` or `go`. |
+| `Unknown theme "..."` | Run `npx diffreel --list-themes` to see every theme name. |
+| Text is too small in a reel | Lines are long for a 1080px-wide video. Wrap them, or set `--font-size`. Long files scroll automatically. |
+| The GIF file is large | Use `--size 960x540 --fps 15`, or share an MP4 instead (much smaller). |
+
+## FAQ
+
+**Is it free?** Yes. diffreel is MIT-licensed open source, and it runs on your machine, so you don't need an account or an API key and nothing is uploaded.
+
+**Does it need Remotion or After Effects?** No. diffreel renders frames in headless Chromium and encodes them with ffmpeg.
+
+**Which languages and themes work?** Every language and theme bundled with [Shiki](https://shiki.style/languages): 200+ languages and 60+ themes, including github-dark, dracula, nord, tokyo-night and catppuccin.
+
+**Can I use it in CI?** Yes. Install with `npx playwright install --with-deps chromium` and run the CLI or `render()`. This repo's own CI renders a test video on every pull request.
+
 ## Support this project
+
+<p align="center">
+  <a href="https://buymeacoffee.com/99proteam"><img src="https://img.shields.io/badge/☕_Buy_me_a_coffee-Support_diffreel-FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=000" alt="Buy me a coffee" height="56"></a>
+</p>
 
 diffreel is free and MIT-licensed. If it saves you editing time, you can support its development on **[Buy Me a Coffee](https://buymeacoffee.com/99proteam)**:
 

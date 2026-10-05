@@ -23,6 +23,7 @@ You need Node.js 20 or newer.
 | `npm test` | All Vitest tests, including the end-to-end render |
 | `npm run test:unit` | Unit tests only (no browser needed) |
 | `npm run examples` | Build, then render every example to `examples/output/` |
+| `npm run site` | Build the website and playground into `site-dist/` (run `npm run examples` first for the videos) |
 
 Try the CLI from source with `npm run build && node dist/cli.js before.ts after.ts -o out.mp4`.
 
@@ -41,6 +42,7 @@ src/
   encode.ts           ffmpeg arguments and frame streaming
   inputs/git.ts       steps from git history
   inputs/steps-file.ts  steps JSON parser and validator
+site/                 website + live playground (reuses src/ in the browser)
 test/                 Vitest tests (e2e.test.ts renders a real video)
 examples/             ready-to-render examples
 ```
@@ -58,7 +60,7 @@ examples/             ready-to-render examples
 ## Releasing (maintainers)
 
 1. Update `CHANGELOG.md` and bump the version with `npm version patch|minor|major`. This creates the tag.
-2. Run `git push --follow-tags`. The `release` workflow tests and publishes to npm when it sees a `v*` tag.
+2. Run `git push --follow-tags`. The `release` workflow tests and publishes to npm when it sees a `v*` tag, using npm trusted publishing (no token needed).
 
 ## Code of conduct
 

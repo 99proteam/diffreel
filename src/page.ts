@@ -1,9 +1,10 @@
-import { fontFaceCss } from "./fonts.js";
 import type { ThemeInfo } from "./highlight.js";
 import type { Layout, Rect } from "./layout.js";
 
 export interface PageOptions {
   layout: Layout;
+  /** @font-face rules (inlined fonts in Node, a stylesheet import in the browser playground). */
+  fontCss: string;
   theme: ThemeInfo;
   fontFamily?: string;
   background?: string;
@@ -34,8 +35,8 @@ function box(r: Rect): string {
 }
 
 /** Minimal page used to measure the monospace advance width before computing the layout. */
-export function measureHtml(fontFamily?: string): string {
-  return `<!doctype html><html><head><meta charset="utf-8"><style>${fontFaceCss()}
+export function measureHtml(fontCss: string, fontFamily?: string): string {
+  return `<!doctype html><html><head><meta charset="utf-8"><style>${fontCss}
 body{margin:0}
 #m{font-family:${codeFont(fontFamily)};font-size:100px;white-space:pre;position:absolute;font-variant-ligatures:none}
 </style></head><body><span id="m"></span></body></html>`;
@@ -71,7 +72,7 @@ export function buildHtml(opts: PageOptions): string {
 
   return `<!doctype html>
 <html><head><meta charset="utf-8"><style>
-${fontFaceCss()}
+${opts.fontCss}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:${L.width}px;height:${L.height}px;overflow:hidden}
 body{background:${bodyBg};-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}

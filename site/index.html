@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>diffreel: turn code changes into animated videos</title>
+  <meta name="description" content="Free, open-source CLI and Node.js library that turns code changes into smooth animated MP4, GIF and WebM videos for tutorials, YouTube, Reels and Shorts. Try the live playground.">
+  <meta name="keywords" content="code animation, code to video, diff animation, code video generator, magic move, shiki, syntax highlighting, programming tutorial video, reels, youtube shorts">
+  <link rel="canonical" href="https://99proteam.github.io/diffreel/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="diffreel: turn code changes into animated videos">
+  <meta property="og:description" content="Give it two versions of a file, a git commit or a list of steps and get a smooth MP4, GIF or WebM. Free and open source.">
+  <meta property="og:url" content="https://99proteam.github.io/diffreel/">
+  <meta property="og:image" content="https://99proteam.github.io/diffreel/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="fonts/fonts.css">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="assets/playground.js"></script>
+</head>
+<body>
+  <a class="skip" href="#playground">Skip to the playground</a>
+
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="#top" aria-label="diffreel home">
+        <img src="favicon.svg" alt="" width="28" height="28">
+        <span>diffreel</span>
+      </a>
+      <nav class="nav-links" aria-label="Main">
+        <a href="#playground">Playground</a>
+        <a href="#usage">Usage</a>
+        <a href="#examples">Examples</a>
+        <a href="https://github.com/99proteam/diffreel#readme">Docs</a>
+        <a href="https://github.com/99proteam/diffreel">GitHub</a>
+      </nav>
+      <a class="btn btn-sponsor btn-sm" href="https://buymeacoffee.com/99proteam" target="_blank" rel="noopener">☕ Sponsor</a>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero wrap">
+      <p class="eyebrow">Free &amp; open source · MIT</p>
+      <h1>Turn code changes into <span class="grad">smooth videos</span></h1>
+      <p class="lede">Give diffreel two versions of a file, a git commit or a list of steps. It renders an MP4, GIF or WebM in which unchanged code slides into place, removed code fades out and new code types in, all with syntax highlighting.</p>
+      <div class="install">
+        <code id="hero-cmd">npx diffreel before.ts after.ts -o out.mp4</code>
+        <button class="btn btn-ghost btn-sm" type="button" data-copy="hero-cmd">Copy</button>
+      </div>
+      <div class="cta">
+        <a class="btn btn-primary" href="#playground">Try the live playground</a>
+        <a class="btn btn-ghost" href="https://github.com/99proteam/diffreel">★ Star on GitHub</a>
+        <a class="btn btn-ghost" href="https://www.npmjs.com/package/diffreel">npm package</a>
+      </div>
+    </section>
+
+    <section id="playground" class="wrap section" aria-labelledby="pg-title">
+      <div class="section-head">
+        <h2 id="pg-title">Live playground</h2>
+        <p>Edit the code, and the preview runs the real diffreel engine in your browser. When it looks right, download <code>steps.json</code> and render the video with one command.</p>
+      </div>
+
+      <div class="pg">
+        <div class="pg-preview">
+          <div id="stage" class="stage"></div>
+          <div class="player">
+            <button id="play" class="btn btn-ghost btn-sm" type="button" aria-pressed="false">Pause</button>
+            <button id="restart" class="btn btn-ghost btn-sm" type="button">Restart</button>
+            <input id="scrub" type="range" min="0" max="1000" value="0" aria-label="Timeline">
+            <span id="time" class="mono muted">0.0s</span>
+          </div>
+          <p id="status" class="status" role="status" aria-live="polite">Loading the engine…</p>
+
+          <div class="export">
+            <div class="export-row">
+              <code id="command" class="mono">npx diffreel steps.json -o diffreel.mp4</code>
+              <button id="copy-command" class="btn btn-ghost btn-sm" type="button">Copy</button>
+            </div>
+            <div class="export-row">
+              <button id="download" class="btn btn-primary btn-sm" type="button">Download steps.json</button>
+              <button id="share" class="btn btn-ghost btn-sm" type="button">Copy share link</button>
+            </div>
+            <p class="hint">Rendering to a video file runs on your machine with headless Chromium and ffmpeg, so nothing is uploaded anywhere.</p>
+          </div>
+        </div>
+
+        <div class="pg-editor">
+          <div class="controls">
+            <label>Example <select id="example"></select></label>
+            <label>Language <select id="lang"></select></label>
+            <label>Theme <select id="theme"></select></label>
+            <label>Size <select id="size"></select></label>
+            <label>File name <input id="filename" type="text" placeholder="app.ts"></label>
+            <label>Background <input id="background" type="text" placeholder="#0f172a or a CSS gradient"></label>
+            <label>Transition <span id="transition-value" class="muted mono"></span>
+              <input id="transition" type="range" min="200" max="3000" step="100"></label>
+            <label>Hold <span id="hold-value" class="muted mono"></span>
+              <input id="hold" type="range" min="300" max="5000" step="100"></label>
+            <div class="toggles">
+              <label class="check"><input id="window" type="checkbox"> Window frame</label>
+              <label class="check"><input id="typing" type="checkbox"> Typing effect</label>
+              <label class="check"><input id="highlightChanges" type="checkbox"> Highlight changes</label>
+            </div>
+          </div>
+          <div id="steps" class="steps"></div>
+          <button id="add-step" class="btn btn-ghost btn-sm add-step" type="button">+ Add step</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap section" aria-labelledby="features-title">
+      <div class="section-head"><h2 id="features-title">Why diffreel</h2></div>
+      <div class="grid">
+        <article class="card"><h3>Token-level magic move</h3><p>diffreel diffs line by line, then token by token, so <code>i &lt;= n</code> becomes <code>i &lt; n</code> by moving the tokens that stayed instead of retyping the line.</p></article>
+        <article class="card"><h3>200+ languages, 60+ themes</h3><p>Highlighting comes from Shiki, the engine behind VS Code themes. Use github-dark, dracula, tokyo-night, nord or any other theme.</p></article>
+        <article class="card"><h3>Made for social video</h3><p>Choose 16:9 YouTube, 9:16 Reels and Shorts, or 1:1 square. Add captions, a macOS window frame, a typing effect and change highlights.</p></article>
+        <article class="card"><h3>Runs locally</h3><p>No server, no account and no upload. diffreel uses headless Chromium plus a bundled ffmpeg, so you install nothing else.</p></article>
+        <article class="card"><h3>Sharp at any size</h3><p>Frames render at 2× scale and are downsampled with Lanczos, so text stays crisp even after social apps compress the video.</p></article>
+        <article class="card"><h3>Handles long files</h3><p>The viewport scrolls to keep the changed lines centered, so you can animate a single fix inside a 1,000-line file.</p></article>
+      </div>
+    </section>
+
+    <section id="usage" class="wrap section" aria-labelledby="usage-title">
+      <div class="section-head">
+        <h2 id="usage-title">Install and use</h2>
+        <p>Requires Node.js 20 or newer. The first command downloads the headless browser used to draw frames, and you only run it once.</p>
+      </div>
+      <div class="usage">
+        <div class="usage-block">
+          <h3>Install</h3>
+          <pre><code>npm install -g diffreel
+npx playwright install chromium</code></pre>
+          <p class="muted">Or skip the global install and use <code>npx diffreel …</code> each time.</p>
+        </div>
+        <div class="usage-block">
+          <h3>1 · Two files</h3>
+          <pre><code>npx diffreel before.ts after.ts -o out.mp4</code></pre>
+        </div>
+        <div class="usage-block">
+          <h3>2 · A git commit</h3>
+          <pre><code>npx diffreel --git HEAD~1..HEAD --file src/app.ts -o out.mp4</code></pre>
+        </div>
+        <div class="usage-block">
+          <h3>3 · A whole tutorial</h3>
+          <pre><code>npx diffreel steps.json -o tutorial.mp4 --size reel --typing</code></pre>
+        </div>
+        <div class="usage-block wide">
+          <h3>From Node.js</h3>
+          <pre><code>import { render } from "diffreel";
+
+await render({
+  steps: [
+    { code: "let total = 0;", lang: "ts", caption: "Before" },
+    { code: "let total: number = 0;", lang: "ts", caption: "After" },
+  ],
+  output: "out.mp4",
+  size: "reel",
+  window: true,
+});</code></pre>
+        </div>
+      </div>
+      <p class="more"><a href="https://github.com/99proteam/diffreel#options">See every option in the README →</a></p>
+    </section>
+
+    <section id="examples" class="wrap section" aria-labelledby="examples-title">
+      <div class="section-head">
+        <h2 id="examples-title">Rendered examples</h2>
+        <p>Each of these videos comes from a single command in the <a href="https://github.com/99proteam/diffreel/tree/main/examples">examples folder</a>.</p>
+      </div>
+      <div class="gallery">
+        <figure><video src="videos/bug-fix.mp4" poster="videos/bug-fix.jpg" muted loop playsinline preload="none" controls></video><figcaption>Bug fix · 16:9</figcaption></figure>
+        <figure><video src="videos/refactor.mp4" poster="videos/refactor.jpg" muted loop playsinline preload="none" controls></video><figcaption>Refactor to async/await · 16:9</figcaption></figure>
+        <figure class="tall"><video src="videos/react-component.mp4" poster="videos/react-component.jpg" muted loop playsinline preload="none" controls></video><figcaption>React component, step by step · Reel 9:16</figcaption></figure>
+        <figure><video src="videos/python-function.mp4" poster="videos/python-function.jpg" muted loop playsinline preload="none" controls></video><figcaption>Python with typing · 1:1</figcaption></figure>
+        <figure><video src="videos/sql-query.mp4" poster="videos/sql-query.jpg" muted loop playsinline preload="none" controls></video><figcaption>SQL query, clause by clause · 1:1</figcaption></figure>
+      </div>
+    </section>
+
+    <section id="sponsor" class="wrap section sponsor" aria-labelledby="sponsor-title">
+      <h2 id="sponsor-title">Support diffreel</h2>
+      <p>diffreel is free and MIT-licensed, built in spare time. If it saves you editing hours, a coffee keeps new features coming, including voice-over, cursor highlights and a VS Code extension.</p>
+      <a class="btn btn-sponsor btn-xl" href="https://buymeacoffee.com/99proteam" target="_blank" rel="noopener">☕ Buy me a coffee</a>
+      <div class="tiers">
+        <div class="tier"><strong>☕ Coffee</strong><span>$5 / month</span><p>Keeps the project alive</p></div>
+        <div class="tier"><strong>🎬 Creator</strong><span>$15 / month</span><p>Your name in the README</p></div>
+        <div class="tier"><strong>🚀 Studio</strong><span>$50 / month</span><p>Logo in the README and priority requests</p></div>
+        <div class="tier"><strong>🏢 Sponsor</strong><span>$200 / month</span><p>Large logo and direct support</p></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <span>diffreel · MIT License · made by <a href="https://github.com/99proteam">99proteam</a></span>
+      <span><a href="https://github.com/99proteam/diffreel">GitHub</a> · <a href="https://www.npmjs.com/package/diffreel">npm</a> · <a href="https://buymeacoffee.com/99proteam">Sponsor</a></span>
+    </div>
+  </footer>
+</body>
+</html>

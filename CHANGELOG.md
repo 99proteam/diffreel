@@ -19,6 +19,7 @@ All notable changes to this project are documented here. The format follows
 - Automatic font sizing and auto-scroll that keeps changes centered in long files.
 - Bundled JetBrains Mono (code) and Inter (captions) fonts, so output looks the same on every OS.
 - Five examples, a Vitest suite and an end-to-end render test.
+- Live playground website (https://99proteam.github.io/diffreel/) that runs the same engine in the browser and exports `steps.json`.
 
 [Unreleased]: https://github.com/99proteam/diffreel/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/99proteam/diffreel/releases/tag/v0.1.0

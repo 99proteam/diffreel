@@ -18,6 +18,8 @@ jobs:
           node-version: 22
           cache: npm
           registry-url: https://registry.npmjs.org
+      - name: Use npm 11 (required for trusted publishing)
+        run: npm install -g npm@latest
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
@@ -31,6 +33,7 @@ jobs:
             echo "Tag ${GITHUB_REF_NAME} does not match package.json version $PKG" >&2
             exit 1
           fi
+      # Authenticates with npm trusted publishing (OIDC). An NPM_TOKEN secret also works as a fallback.
       - run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

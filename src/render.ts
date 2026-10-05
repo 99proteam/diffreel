@@ -2,6 +2,7 @@ import { mkdir, rm } from "node:fs/promises";
 import { dirname, extname, resolve } from "node:path";
 import { openBrowser, type FrameBrowser } from "./browser.js";
 import { createEncoder, type Encoder } from "./encode.js";
+import { fontFaceCss } from "./fonts.js";
 import { charCount, createTokenizer, type CodeLine } from "./highlight.js";
 import { computeLayout } from "./layout.js";
 import { buildHtml, measureHtml, MEASURE_SCRIPT } from "./page.js";
@@ -95,7 +96,8 @@ export async function render(options: RenderOptions): Promise<RenderResult> {
   try {
     browser = await openBrowser({ width: size.width, height: size.height, scale });
     const { page } = browser;
-    await page.setContent(measureHtml(options.fontFamily));
+    const fontCss = fontFaceCss();
+    await page.setContent(measureHtml(fontCss, options.fontFamily));
     const charRatio = (await page.evaluate(`(${MEASURE_SCRIPT})()`)) as number;
     if (!Number.isFinite(charRatio) || charRatio <= 0) throw new Error("Could not measure the code font.");
 
@@ -110,7 +112,7 @@ export async function render(options: RenderOptions): Promise<RenderResult> {
       charRatio,
     });
     await page.setContent(
-      buildHtml({ layout, theme: tokenizer.theme, fontFamily: options.fontFamily, background: options.background }),
+      buildHtml({ layout, fontCss, theme: tokenizer.theme, fontFamily: options.fontFamily, background: options.background }),
     );
     await page.evaluate(`(${MEASURE_FONTS_READY})()`);
 

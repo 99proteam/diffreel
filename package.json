@@ -82,7 +82,9 @@
     "test:watch": "vitest",
     "examples": "npm run build && node scripts/render-examples.mjs",
     "browsers": "playwright install chromium",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "site": "node scripts/build-site.mjs",
+    "site:serve": "node scripts/build-site.mjs && npx --yes serve site-dist -l 4173"
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",
@@ -96,6 +98,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.0",
     "@types/node": "^20.19.0",
+    "esbuild": "^0.27.7",
     "eslint": "^10.12.0",
     "ffprobe-static": "^3.1.0",
     "globals": "^16.0.0",
