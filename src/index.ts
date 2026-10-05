@@ -1,0 +1,10 @@
+export { render, resolveOutput, DEFAULTS } from "./render.js";
+export { parseSize, SIZE_PRESETS, DEFAULT_SIZE, type Size } from "./sizes.js";
+export { detectLang } from "./lang.js";
+export { createTokenizer, listThemes, normalizeCode, splitPieces, type CodeLine, type CodeToken, type ThemeInfo } from "./highlight.js";
+export { alignLines, matchTokens, planTransition, type LineAlignment, type TokenMatch, type TransitionPlan } from "./diff.js";
+export { computeLayout, stepOffsetY, type Layout } from "./layout.js";
+export { buildTimeline, frameAt, type FrameState, type Timeline } from "./timeline.js";
+export { parseSteps, loadStepsFile, StepsFileError, type ParsedStepsFile, type StepsFileOptions } from "./inputs/steps-file.js";
+export { loadGitSteps, parseGitRange, type GitRange, type GitStepsOptions } from "./inputs/git.js";
+export type { OutputFormat, RenderOptions, RenderProgress, RenderResult, SizeInput, SizePreset, Step } from "./types.js";

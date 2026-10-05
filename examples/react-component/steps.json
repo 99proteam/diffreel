@@ -1,0 +1,68 @@
+{
+  "filename": "Counter.tsx",
+  "lang": "tsx",
+  "theme": "tokyo-night",
+  "size": "reel",
+  "window": true,
+  "typing": true,
+  "highlightChanges": true,
+  "hold": 1800,
+  "steps": [
+    {
+      "caption": "A React counter, step by step",
+      "code": [
+        "export function Counter() {",
+        "  return <button>Count: 0</button>;",
+        "}"
+      ]
+    },
+    {
+      "caption": "1. Keep the count in state",
+      "code": [
+        "import { useState } from \"react\";",
+        "",
+        "export function Counter() {",
+        "  const [count, setCount] = useState(0);",
+        "",
+        "  return <button>Count: {count}</button>;",
+        "}"
+      ]
+    },
+    {
+      "caption": "2. Update it on click",
+      "code": [
+        "import { useState } from \"react\";",
+        "",
+        "export function Counter() {",
+        "  const [count, setCount] = useState(0);",
+        "",
+        "  return (",
+        "    <button onClick={() => setCount(count + 1)}>",
+        "      Count: {count}",
+        "    </button>",
+        "  );",
+        "}"
+      ]
+    },
+    {
+      "caption": "3. Add a step prop and a reset button",
+      "hold": 3000,
+      "code": [
+        "import { useState } from \"react\";",
+        "",
+        "export function Counter({ step = 1 }) {",
+        "  const [count, setCount] = useState(0);",
+        "",
+        "  return (",
+        "    <div className=\"counter\">",
+        "      <button onClick={() => setCount((c) => c + step)}>",
+        "        Count: {count}",
+        "      </button>",
+        "      <button onClick={() => setCount(0)}>Reset</button>",
+        "    </div>",
+        "  );",
+        "}"
+      ]
+    }
+  ]
+}

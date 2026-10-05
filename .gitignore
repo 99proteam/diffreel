@@ -1,0 +1,8 @@
+node_modules/
+dist/
+coverage/
+examples/output/
+test/.output/
+*.log
+.DS_Store
+*.tgz

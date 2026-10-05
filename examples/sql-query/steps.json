@@ -1,0 +1,48 @@
+{
+  "filename": "top_customers.sql",
+  "lang": "sql",
+  "theme": "github-light",
+  "size": "square",
+  "window": true,
+  "highlightChanges": true,
+  "hold": 1600,
+  "transition": 1000,
+  "steps": [
+    {
+      "caption": "Start with every order",
+      "code": ["SELECT *", "FROM orders;"]
+    },
+    {
+      "caption": "Join the customers",
+      "code": [
+        "SELECT c.name, o.total",
+        "FROM orders o",
+        "JOIN customers c ON c.id = o.customer_id;"
+      ]
+    },
+    {
+      "caption": "Only paid orders from this year",
+      "code": [
+        "SELECT c.name, o.total",
+        "FROM orders o",
+        "JOIN customers c ON c.id = o.customer_id",
+        "WHERE o.status = 'paid'",
+        "  AND o.created_at >= DATE '2026-01-01';"
+      ]
+    },
+    {
+      "caption": "Total per customer, top 10",
+      "hold": 2800,
+      "code": [
+        "SELECT c.name, SUM(o.total) AS revenue",
+        "FROM orders o",
+        "JOIN customers c ON c.id = o.customer_id",
+        "WHERE o.status = 'paid'",
+        "  AND o.created_at >= DATE '2026-01-01'",
+        "GROUP BY c.name",
+        "ORDER BY revenue DESC",
+        "LIMIT 10;"
+      ]
+    }
+  ]
+}
