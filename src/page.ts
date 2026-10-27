@@ -8,6 +8,8 @@ export interface PageOptions {
   theme: ThemeInfo;
   fontFamily?: string;
   background?: string;
+  /** Digits of the widest line number; 0 or undefined hides line numbers. */
+  lineNumberDigits?: number;
 }
 
 export const DEFAULT_GRADIENTS = {
@@ -86,7 +88,8 @@ body{background:${bodyBg};-webkit-font-smoothing:antialiased;text-rendering:geom
 #tab{position:absolute;left:50%;top:0;height:100%;transform:translateX(-50%);display:flex;align-items:center;font:500 ${tabFont}px ${CAPTION_FONT};color:color-mix(in srgb, ${theme.fg} 70%, transparent);white-space:nowrap;max-width:60%;overflow:hidden;text-overflow:ellipsis}
 #viewport{position:absolute;left:${L.viewport.x - L.card.x}px;top:${L.viewport.y - L.card.y}px;width:${L.viewport.width}px;height:${L.viewport.height}px;overflow:hidden}
 #content{position:absolute;left:0;top:0;width:100%;will-change:transform}
-#glow,#tokens{position:absolute;left:0;top:0;width:100%}
+#glow,#tokens,#lines{position:absolute;left:0;top:0;width:100%}
+.ln{position:absolute;left:${L.contentOffsetX}px;top:0;width:${(opts.lineNumberDigits ?? 0) * L.charWidth}px;height:${L.lineHeight}px;line-height:${L.lineHeight}px;text-align:right;font-family:${codeFont(opts.fontFamily)};font-size:${L.fontSize}px;font-variant-numeric:tabular-nums;color:color-mix(in srgb, ${theme.fg} 45%, transparent);will-change:opacity}
 .g{position:absolute;left:0;width:100%;height:${L.lineHeight}px;background:${dark ? "rgba(56,189,248,0.14)" : "rgba(14,116,144,0.10)"};box-shadow:inset ${Math.max(3, Math.round(L.fontSize * 0.15))}px 0 0 ${dark ? "rgba(56,189,248,0.85)" : "rgba(14,116,144,0.7)"};border-radius:${Math.round(L.fontSize * 0.2)}px}
 .t{position:absolute;left:0;top:0;height:${L.lineHeight}px;line-height:${L.lineHeight}px;font-family:${codeFont(opts.fontFamily)};font-size:${L.fontSize}px;white-space:pre;overflow:hidden;font-variant-ligatures:none;font-kerning:none;will-change:transform,opacity}
 .i{font-style:italic}.b{font-weight:700}.u{text-decoration:underline}.s{text-decoration:line-through}
@@ -97,7 +100,7 @@ body{background:${bodyBg};-webkit-font-smoothing:antialiased;text-rendering:geom
   }padding:0 4%;overflow:hidden}
 </style></head>
 <body>
-<div id="card">${windowChrome}<div id="viewport"><div id="content"><div id="glow"></div><div id="tokens"></div><div id="caret"></div></div></div></div>
+<div id="card">${windowChrome}<div id="viewport"><div id="content"><div id="glow"></div><div id="lines"></div><div id="tokens"></div><div id="caret"></div></div></div></div>
 <div id="caption"><div class="cap"></div><div class="cap"></div></div>
 <script>
 (() => {
@@ -108,8 +111,11 @@ body{background:${bodyBg};-webkit-font-smoothing:antialiased;text-rendering:geom
   const caret = document.getElementById('caret');
   const caps = document.querySelectorAll('.cap');
   const filename = document.getElementById('filename');
+  const linesEl = document.getElementById('lines');
+  const LH = ${L.lineHeight};
   let els = [];
   let glows = [];
+  let nums = [];
   window.__diffreel = {
     setSegment(list) {
       tokens.textContent = '';
@@ -159,6 +165,16 @@ body{background:${bodyBg};-webkit-font-smoothing:antialiased;text-rendering:geom
         caps[i].style.opacity = c ? c[1] : 0;
       }
       if (filename.textContent !== s.filename) filename.textContent = s.filename;
+      const ln = s.lineNumbers || [];
+      while (nums.length < ln.length) {
+        const n = document.createElement('div');
+        n.className = 'ln';
+        n.textContent = String(nums.length + 1);
+        n.style.transform = 'translateY(' + nums.length * LH + 'px)';
+        linesEl.appendChild(n);
+        nums.push(n);
+      }
+      for (let i = 0; i < nums.length; i++) nums[i].style.opacity = i < ln.length ? ln[i][1] : 0;
     },
   };
 })();

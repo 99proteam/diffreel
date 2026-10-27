@@ -34,7 +34,7 @@
         <a href="https://github.com/99proteam/diffreel#readme">Docs</a>
         <a href="https://github.com/99proteam/diffreel">GitHub</a>
       </nav>
-      <a class="btn btn-sponsor btn-sm" href="https://buymeacoffee.com/99proteam" target="_blank" rel="noopener">☕ Sponsor</a>
+      <a class="btn btn-sponsor btn-sm" href="https://github.com/sponsors/99proteam" target="_blank" rel="noopener">💖 Sponsor</a>
     </div>
   </header>
 
@@ -100,6 +100,8 @@
               <label class="check"><input id="window" type="checkbox"> Window frame</label>
               <label class="check"><input id="typing" type="checkbox"> Typing effect</label>
               <label class="check"><input id="highlightChanges" type="checkbox"> Highlight changes</label>
+              <label class="check"><input id="lineNumbers" type="checkbox"> Line numbers</label>
+              <label class="check"><input id="focusChanges" type="checkbox"> Focus on changes</label>
             </div>
           </div>
           <div id="steps" class="steps"></div>
@@ -113,7 +115,7 @@
       <div class="grid">
         <article class="card"><h3>Token-level magic move</h3><p>diffreel diffs line by line, then token by token, so <code>i &lt;= n</code> becomes <code>i &lt; n</code> by moving the tokens that stayed instead of retyping the line.</p></article>
         <article class="card"><h3>200+ languages, 60+ themes</h3><p>Highlighting comes from Shiki, the engine behind VS Code themes. Use github-dark, dracula, tokyo-night, nord or any other theme.</p></article>
-        <article class="card"><h3>Made for social video</h3><p>Choose 16:9 YouTube, 9:16 Reels and Shorts, or 1:1 square. Add captions, a macOS window frame, a typing effect and change highlights.</p></article>
+        <article class="card"><h3>Made for social video</h3><p>Choose 16:9 YouTube, 9:16 Reels and Shorts, or 1:1 square. Add captions, a macOS window frame, a typing effect, change highlights, line numbers and focus-and-dim.</p></article>
         <article class="card"><h3>Runs locally</h3><p>No server, no account and no upload. diffreel uses headless Chromium plus a bundled ffmpeg, so you install nothing else.</p></article>
         <article class="card"><h3>Sharp at any size</h3><p>Frames render at 2× scale and are downsampled with Lanczos, so text stays crisp even after social apps compress the video.</p></article>
         <article class="card"><h3>Handles long files</h3><p>The viewport scrolls to keep the changed lines centered, so you can animate a single fix inside a 1,000-line file.</p></article>
@@ -178,8 +180,9 @@ await render({
 
     <section id="sponsor" class="wrap section sponsor" aria-labelledby="sponsor-title">
       <h2 id="sponsor-title">Support diffreel</h2>
-      <p>diffreel is free and MIT-licensed, built in spare time. If it saves you editing hours, a coffee keeps new features coming, including voice-over, cursor highlights and a VS Code extension.</p>
-      <a class="btn btn-sponsor btn-xl" href="https://buymeacoffee.com/99proteam" target="_blank" rel="noopener">☕ Buy me a coffee</a>
+      <p>diffreel is free and MIT-licensed. If it saves you editing hours, sponsor it on GitHub. Our goal is <strong>$5,000 a month</strong> so new features keep coming, including voice-over, cursor highlights and a VS Code extension.</p>
+      <a class="btn btn-sponsor btn-xl" href="https://github.com/sponsors/99proteam" target="_blank" rel="noopener">💖 Sponsor on GitHub</a>
+      <p class="muted">Prefer a one-off? <a href="https://buymeacoffee.com/99proteam" target="_blank" rel="noopener">Buy me a coffee</a>.</p>
       <div class="tiers">
         <div class="tier"><strong>☕ Coffee</strong><span>$5 / month</span><p>Keeps the project alive</p></div>
         <div class="tier"><strong>🎬 Creator</strong><span>$15 / month</span><p>Your name in the README</p></div>
@@ -192,7 +195,7 @@ await render({
   <footer class="footer">
     <div class="wrap footer-inner">
       <span>diffreel · MIT License · made by <a href="https://github.com/99proteam">99proteam</a></span>
-      <span><a href="https://github.com/99proteam/diffreel">GitHub</a> · <a href="https://www.npmjs.com/package/diffreel">npm</a> · <a href="https://buymeacoffee.com/99proteam">Sponsor</a></span>
+      <span><a href="https://github.com/99proteam/diffreel">GitHub</a> · <a href="https://www.npmjs.com/package/diffreel">npm</a> · <a href="https://github.com/sponsors/99proteam">Sponsor</a></span>
     </div>
   </footer>
 </body>

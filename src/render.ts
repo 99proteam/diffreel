@@ -2,6 +2,7 @@ import { mkdir, rm } from "node:fs/promises";
 import { dirname, extname, resolve } from "node:path";
 import { openBrowser, type FrameBrowser } from "./browser.js";
 import { createEncoder, type Encoder } from "./encode.js";
+import { gutterColumns, parseFocus } from "./focus.js";
 import { fontFaceCss } from "./fonts.js";
 import { charCount, createTokenizer, type CodeLine } from "./highlight.js";
 import { computeLayout } from "./layout.js";
@@ -88,6 +89,16 @@ export async function render(options: RenderOptions): Promise<RenderResult> {
   const maxCols = Math.max(1, ...lines.flatMap((step) => step.map((l) => charCount(l.text))));
   const maxLines = Math.max(1, ...lines.map((step) => step.length));
   const hasCaption = steps.some((s) => Boolean(s.caption));
+  const lineNumbers = options.lineNumbers ?? false;
+  const gutter = lineNumbers ? gutterColumns(maxLines) : 0;
+  const focus = steps.map((s, i) => {
+    if (s.focus === undefined) return undefined;
+    try {
+      return parseFocus(s.focus, lines[i]!.length);
+    } catch (error) {
+      throw new Error(`steps[${i}].${(error as Error).message}`, { cause: error });
+    }
+  });
 
   await mkdir(dirname(output), { recursive: true });
 
@@ -104,7 +115,7 @@ export async function render(options: RenderOptions): Promise<RenderResult> {
     const layout = computeLayout({
       width: size.width,
       height: size.height,
-      maxCols,
+      maxCols: maxCols + gutter,
       maxLines,
       hasCaption,
       window: options.window ?? false,
@@ -112,16 +123,32 @@ export async function render(options: RenderOptions): Promise<RenderResult> {
       charRatio,
     });
     await page.setContent(
-      buildHtml({ layout, fontCss, theme: tokenizer.theme, fontFamily: options.fontFamily, background: options.background }),
+      buildHtml({
+        layout,
+        fontCss,
+        theme: tokenizer.theme,
+        fontFamily: options.fontFamily,
+        background: options.background,
+        lineNumberDigits: gutter > 0 ? gutter - 2 : 0,
+      }),
     );
     await page.evaluate(`(${MEASURE_FONTS_READY})()`);
 
     const timeline = buildTimeline({
-      steps: steps.map((s, i) => ({ lines: lines[i]!, caption: s.caption, filename: s.filename, hold: s.hold, transition: s.transition })),
+      steps: steps.map((s, i) => ({
+        lines: lines[i]!,
+        caption: s.caption,
+        filename: s.filename,
+        hold: s.hold,
+        transition: s.transition,
+        focus: focus[i],
+      })),
       layout,
       typing: options.typing ?? false,
       typingSpeed,
       highlightChanges: options.highlightChanges ?? false,
+      lineNumbers,
+      focusChanges: options.focusChanges ?? false,
     });
 
     const totalFrames = Math.max(1, Math.round((timeline.durationMs * fps) / 1000));
@@ -137,7 +164,9 @@ export async function render(options: RenderOptions): Promise<RenderResult> {
         await page.evaluate((list) => (window as unknown as DiffreelWindow).__diffreel.setSegment(list), segmentTokens(timeline.segments[segment]!));
         lastKey = "";
       }
-      const key = JSON.stringify(state.items) + JSON.stringify([state.offsetY, state.glow, state.caret, state.captions, state.filename]);
+      const key =
+        JSON.stringify(state.items) +
+        JSON.stringify([state.offsetY, state.glow, state.caret, state.captions, state.filename, state.lineNumbers]);
       if (key !== lastKey || !lastFrame) {
         await page.evaluate((s) => (window as unknown as DiffreelWindow).__diffreel.frame(s), state);
         lastFrame = await browser.capture();

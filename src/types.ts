@@ -32,6 +32,11 @@ export interface Step {
   transition?: number;
   /** File name shown in the window tab (with `window: true`). */
   filename?: string;
+  /**
+   * Lines to keep bright while the rest dim: 1-based, as "3", "2-4, 8" or [2, 3, 4].
+   * Long code also scrolls to these lines.
+   */
+  focus?: string | number[];
 }
 
 export interface RenderProgress {
@@ -70,6 +75,10 @@ export interface RenderOptions {
   typingSpeed?: number;
   /** Briefly glow changed lines after each transition. */
   highlightChanges?: boolean;
+  /** Show line numbers in a gutter left of the code. */
+  lineNumbers?: boolean;
+  /** Dim everything except each step's changed lines (steps with their own `focus` keep it). */
+  focusChanges?: boolean;
   /** Caption used for steps that don't have their own. */
   caption?: string;
   /** Draw a macOS-style window frame with a file name tab. */

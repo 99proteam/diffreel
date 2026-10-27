@@ -1,14 +1,12 @@
 # Roadmap
 
 These are ideas for future versions, roughly in priority order. Want one sooner? Open an issue or
-[support the project](https://buymeacoffee.com/99proteam).
+[sponsor the project on GitHub](https://github.com/sponsors/99proteam) (goal: $5,000/month).
 
 ## Next
 
 - **Voice-over with captions.** Attach an audio file (or generate speech) per step, time each step to its narration, and burn in word-level subtitles.
 - **Cursor highlights.** An animated cursor or spotlight that points at the line or token being explained.
-- **Line numbers** that animate with the code.
-- **Focus and dim.** Dim everything except the lines a step is about.
 
 ## Later
 
@@ -24,3 +22,4 @@ These are ideas for future versions, roughly in priority order. Want one sooner?
 
 - Two-file, git and steps-file inputs (0.1.0)
 - Token-level morphing, typing, change glow, captions, window frame (0.1.0)
+- Line numbers that animate with the code, and focus-and-dim per step or on changed lines (unreleased)

@@ -8,8 +8,8 @@
   --muted: #9aa3c7;
   --accent: #8b7bff;
   --accent-2: #38bdf8;
-  --sponsor: #ffdd00;
-  --sponsor-text: #1a1400;
+  --sponsor: #bf3989;
+  --sponsor-text: #ffffff;
   --danger: #ff7a90;
   --ok: #5eead4;
   --radius: 14px;
@@ -71,7 +71,7 @@ p code, li code { background: var(--surface-2); padding: 0.1em 0.35em; border-ra
 .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; }
 .btn-ghost { background: var(--surface); color: var(--text); border-color: var(--border); }
 .btn-ghost:hover { border-color: color-mix(in srgb, var(--accent) 60%, transparent); }
-.btn-sponsor { background: var(--sponsor); color: var(--sponsor-text); box-shadow: 0 6px 24px rgba(255, 221, 0, 0.25); }
+.btn-sponsor { background: var(--sponsor); color: var(--sponsor-text); box-shadow: 0 6px 24px rgba(219, 97, 162, 0.3); }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
 /* hero */

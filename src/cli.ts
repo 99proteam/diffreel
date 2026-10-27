@@ -47,6 +47,8 @@ interface CliOptions {
   typing?: boolean;
   typingSpeed?: number;
   highlightChanges?: boolean;
+  lineNumbers?: boolean;
+  focusChanges?: boolean;
   caption?: string;
   window?: boolean;
   title?: string;
@@ -79,6 +81,10 @@ const program = new Command()
   .option("--typing-speed <cps>", `typing speed in characters per second (default ${DEFAULTS.typingSpeed})`, num("--typing-speed", { min: 1 }))
   .option("--highlight-changes", "briefly glow changed lines after each transition")
   .option("--no-highlight-changes", "disable change highlighting (overrides a steps file)")
+  .option("--line-numbers", "show line numbers next to the code")
+  .option("--no-line-numbers", "hide line numbers (overrides a steps file)")
+  .option("--focus-changes", "dim everything except the lines each step changes")
+  .option("--no-focus-changes", "no dimming (overrides a steps file)")
   .option("--caption <text>", "caption shown under the code (for steps without their own)")
   .option("--window", "draw a macOS-style window frame with a file name tab")
   .option("--no-window", "no window frame (overrides a steps file)")
@@ -96,6 +102,7 @@ Examples:
   $ diffreel before.ts after.ts -o out.mp4
   $ diffreel --git HEAD~1..HEAD --file src/app.ts -o out.mp4
   $ diffreel steps.json -o out.mp4 --size reel --window --typing
+  $ diffreel before.py after.py -o out.mp4 --line-numbers --focus-changes
 `,
   )
   .action(async (inputs: string[], opts: CliOptions) => {
@@ -177,6 +184,8 @@ async function run(inputs: string[], opts: CliOptions): Promise<void> {
     typing: opts.typing,
     typingSpeed: opts.typingSpeed,
     highlightChanges: opts.highlightChanges,
+    lineNumbers: opts.lineNumbers,
+    focusChanges: opts.focusChanges,
     caption: opts.caption,
     window: opts.window,
     background: opts.background,

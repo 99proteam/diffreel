@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { readFileSync } from "node:fs";
 import { basename, dirname, resolve } from "node:path";
+import { parseFocus } from "../focus.js";
 import { detectLang } from "../lang.js";
 import type { RenderOptions, Step } from "../types.js";
 
@@ -25,6 +26,8 @@ export type StepsFileOptions = Pick<
   | "typing"
   | "typingSpeed"
   | "highlightChanges"
+  | "lineNumbers"
+  | "focusChanges"
   | "caption"
   | "window"
   | "title"
@@ -50,8 +53,8 @@ const isObject = (v: unknown): v is Json => typeof v === "object" && v !== null 
 
 const STRING_OPTIONS = ["theme", "lang", "fontFamily", "caption", "title", "background"] as const;
 const NUMBER_OPTIONS = ["fps", "fontSize", "transition", "hold", "typingSpeed"] as const;
-const BOOLEAN_OPTIONS = ["typing", "highlightChanges", "window"] as const;
-const STEP_KEYS = new Set(["code", "file", "lang", "caption", "hold", "transition", "filename", "title"]);
+const BOOLEAN_OPTIONS = ["typing", "highlightChanges", "window", "lineNumbers", "focusChanges"] as const;
+const STEP_KEYS = new Set(["code", "file", "lang", "caption", "hold", "transition", "filename", "title", "focus"]);
 const TOP_KEYS = new Set<string>([
   "steps",
   "filename",
@@ -157,6 +160,18 @@ export function parseSteps(data: unknown, ctx: ParseContext): ParsedStepsFile {
     if (raw.title !== undefined) step.filename = str(raw.title, `${where}.title`);
     if (raw.hold !== undefined) step.hold = nonNegative(raw.hold, `${where}.hold`);
     if (raw.transition !== undefined) step.transition = nonNegative(raw.transition, `${where}.transition`);
+    if (raw.focus !== undefined) {
+      const f = raw.focus;
+      if (!(typeof f === "string" || (Array.isArray(f) && f.every((n) => typeof n === "number")))) {
+        throw new StepsFileError(`${where}.focus must be a string like "2-4, 8" or an array of line numbers.`);
+      }
+      try {
+        parseFocus(f, Number.MAX_SAFE_INTEGER); // syntax check; lines are clamped at render time
+      } catch (error) {
+        throw new StepsFileError(`${where}.${(error as Error).message}`);
+      }
+      step.focus = f;
+    }
     return step;
   });
 

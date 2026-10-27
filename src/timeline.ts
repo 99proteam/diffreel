@@ -1,4 +1,5 @@
 import { planTransition, type TransitionPlan } from "./diff.js";
+import { gutterColumns } from "./focus.js";
 import { charCount, type CodeLine, type CodeToken } from "./highlight.js";
 import { stepOffsetY, type Layout } from "./layout.js";
 
@@ -10,6 +11,8 @@ export interface TimelineStep {
   hold: number;
   /** Transition into this step, ms (ignored for the first step). */
   transition: number;
+  /** Zero-based lines to keep bright; the rest are dimmed while this step is held. */
+  focus?: number[];
 }
 
 export interface TimelineInput {
@@ -19,7 +22,14 @@ export interface TimelineInput {
   /** Characters per second when typing. */
   typingSpeed?: number;
   highlightChanges?: boolean;
+  /** Show line numbers in a gutter left of the code. */
+  lineNumbers?: boolean;
+  /** Focus each step on its changed lines (steps with an explicit `focus` keep theirs). */
+  focusChanges?: boolean;
 }
+
+/** Opacity removed from unfocused lines when fully dimmed (they end up at 30%). */
+export const DIM_AMOUNT = 0.7;
 
 export interface SegmentToken {
   text: string;
@@ -30,6 +40,7 @@ interface StaticToken extends SegmentToken {
   x: number;
   y: number;
   color: string;
+  line: number;
 }
 
 interface AnimToken extends SegmentToken {
@@ -43,6 +54,8 @@ interface AnimToken extends SegmentToken {
   /** Typing: characters typed before this token starts. */
   typeAt: number;
   length: number;
+  /** Line the token starts on (for undimming the previous step's focus). */
+  line0: number;
 }
 
 type Range = [number, number];
@@ -58,6 +71,10 @@ export interface HoldSegment {
   glowMs: number;
   caption?: string;
   filename?: string;
+  lineCount: number;
+  /** Lines kept bright while the rest dim; null when nothing is dimmed. */
+  focus: number[] | null;
+  dimMs: number;
 }
 
 export interface TransitionSegment {
@@ -78,6 +95,10 @@ export interface TransitionSegment {
   captionFrom?: string;
   captionTo?: string;
   filename?: string;
+  linesFrom: number;
+  linesTo: number;
+  /** Focus of the step we're leaving; its dimming fades out at the start of the transition. */
+  focusFrom: number[] | null;
 }
 
 export type Segment = HoldSegment | TransitionSegment;
@@ -88,6 +109,8 @@ export interface Timeline {
   layout: Layout;
   highlightChanges: boolean;
   plans: TransitionPlan[];
+  /** Digits of the widest line number, or 0 when line numbers are off. */
+  lineNumberDigits: number;
 }
 
 /** [x, y, opacity, visibleChars (-1 = all), color] */
@@ -104,6 +127,8 @@ export interface FrameState {
   /** [text, opacity] */
   captions: Array<[string, number]>;
   filename: string;
+  /** [row, opacity] of each visible line number (empty when line numbers are off). */
+  lineNumbers: Array<[number, number]>;
 }
 
 export const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
@@ -157,18 +182,28 @@ export function buildTimeline(input: TimelineInput): Timeline {
   const highlightChanges = input.highlightChanges ?? false;
   const maxLines = Math.max(...steps.map((s) => s.lines.length), 1);
   const lh = layout.lineHeight;
-  const px = (t: Pick<CodeToken, "line" | "col">) => ({ x: layout.contentOffsetX + t.col * layout.charWidth, y: t.line * lh });
+  const gutter = input.lineNumbers ? gutterColumns(maxLines) : 0;
+  const px = (t: Pick<CodeToken, "line" | "col">) => ({
+    x: layout.contentOffsetX + (gutter + t.col) * layout.charWidth,
+    y: t.line * lh,
+  });
 
   const plans: TransitionPlan[] = [];
   const offsets: number[] = [];
+  const focusLines: Array<number[] | null> = [];
   for (let i = 0; i < steps.length; i++) {
     const step = steps[i]!;
     let focus: [number, number] | null = null;
+    let plan: TransitionPlan | undefined;
     if (i > 0) {
-      const plan = planTransition(steps[i - 1]!.lines, step.lines);
+      plan = planTransition(steps[i - 1]!.lines, step.lines);
       plans.push(plan);
       focus = focusRange(plan);
     }
+    const dim = step.focus ?? (input.focusChanges && plan ? glowLines(plan, step.lines) : undefined);
+    focusLines.push(dim && dim.length > 0 ? dim : null);
+    // An explicit focus also decides what scrolls into view.
+    if (step.focus && step.focus.length > 0) focus = [step.focus[0]!, step.focus[step.focus.length - 1]!];
     offsets.push(
       stepOffsetY({ layout, maxLines, stepLines: step.lines.length, focus, previous: offsets[i - 1] ?? 0 }),
     );
@@ -186,13 +221,16 @@ export function buildTimeline(input: TimelineInput): Timeline {
       start: time,
       duration: Math.max(0, step.hold),
       tokens: step.lines.flatMap((line) =>
-        line.tokens.map((t) => ({ text: t.text, fontStyle: t.fontStyle, color: t.color, ...px(t) })),
+        line.tokens.map((t) => ({ text: t.text, fontStyle: t.fontStyle, color: t.color, line: t.line, ...px(t) })),
       ),
       offsetY: offsets[i]!,
       glowRows,
       glowMs: Math.min(1600, Math.max(0, step.hold)),
       caption: step.caption,
       filename: step.filename,
+      lineCount: step.lines.length,
+      focus: focusLines[i]!,
+      dimMs: Math.min(500, Math.max(0, step.hold) * 0.3),
     });
     time += Math.max(0, step.hold);
   };
@@ -226,6 +264,7 @@ export function buildTimeline(input: TimelineInput): Timeline {
         color1: to.color,
         typeAt: 0,
         length: charCount(to.text),
+        line0: from.line,
       });
     }
     for (const t of plan.removed) {
@@ -242,6 +281,7 @@ export function buildTimeline(input: TimelineInput): Timeline {
         color1: t.color,
         typeAt: 0,
         length: charCount(t.text),
+        line0: t.line,
       });
     }
     const added = [...plan.added].sort((p, q) => p.line - q.line || p.col - q.col);
@@ -262,6 +302,7 @@ export function buildTimeline(input: TimelineInput): Timeline {
         color1: t.color,
         typeAt: typed,
         length: charCount(t.text),
+        line0: t.line,
       });
       typed += charCount(t.text);
       prev = t;
@@ -296,12 +337,22 @@ export function buildTimeline(input: TimelineInput): Timeline {
       captionFrom: steps[i - 1]!.caption,
       captionTo: step.caption,
       filename: step.filename ?? steps[i - 1]!.filename,
+      linesFrom: steps[i - 1]!.lines.length,
+      linesTo: step.lines.length,
+      focusFrom: focusLines[i - 1]!,
     });
     time += duration;
     pushHold(i);
   }
 
-  return { segments, durationMs: time, layout, highlightChanges, plans };
+  return {
+    segments,
+    durationMs: time,
+    layout,
+    highlightChanges,
+    plans,
+    lineNumberDigits: gutter > 0 ? gutter - 2 : 0,
+  };
 }
 
 /** Find the segment active at time t (ms). */
@@ -325,18 +376,24 @@ export function frameAt(timeline: Timeline, t: number): FrameState {
   const lh = timeline.layout.lineHeight;
   const cw = timeline.layout.charWidth;
 
+  const numbers = timeline.lineNumberDigits > 0;
+
   if (seg.kind === "hold") {
     const g = seg.glowMs;
     let glowOpacity = 0;
     if (g > 0 && local < g) glowOpacity = local < g * 0.35 ? 1 : 1 - easeInOutCubic((local - g * 0.35) / (g * 0.65));
+    const focus = seg.focus ? new Set(seg.focus) : null;
+    const dimP = focus ? easeInOutCubic(progress(local, [0, seg.dimMs])) : 0;
+    const bright = (line: number) => (!focus || focus.has(line) ? 1 : r3(1 - DIM_AMOUNT * dimP));
     return {
       segment: index,
       offsetY: r2(seg.offsetY),
-      items: seg.tokens.map((tk) => [r2(tk.x), r2(tk.y), 1, -1, tk.color]),
+      items: seg.tokens.map((tk) => [r2(tk.x), r2(tk.y), bright(tk.line), -1, tk.color]),
       glow: glowOpacity > 0 ? seg.glowRows.map((y) => [y, r3(glowOpacity)]) : [],
       caret: null,
       captions: seg.caption ? [[seg.caption, 1]] : [],
       filename: seg.filename ?? "",
+      lineNumbers: numbers ? Array.from({ length: seg.lineCount }, (_, row) => [row, bright(row)]) : [],
     };
   }
 
@@ -345,14 +402,24 @@ export function frameAt(timeline: Timeline, t: number): FrameState {
   const enterRaw = progress(local, seg.enter);
   const enterP = easeOutCubic(enterRaw);
   const typedNow = enterRaw * seg.typedChars;
+  // The previous step's dimming fades back to full brightness as the transition starts.
+  const focusFrom = seg.focusFrom ? new Set(seg.focusFrom) : null;
+  const dimLeft = focusFrom ? 1 - easeOutCubic(progress(local, [0, Math.min(300, seg.duration * 0.3)])) : 0;
+  const undim = (line: number) => (!focusFrom || focusFrom.has(line) ? 1 : 1 - DIM_AMOUNT * dimLeft);
 
   let caret: FrameState["caret"] = null;
   const items: ItemFrame[] = seg.tokens.map((tk) => {
     if (tk.kind === "matched") {
-      return [r2(lerp(tk.x0, tk.x1, moveP)), r2(lerp(tk.y0, tk.y1, moveP)), 1, -1, mixColor(tk.color0, tk.color1, moveP)];
+      return [
+        r2(lerp(tk.x0, tk.x1, moveP)),
+        r2(lerp(tk.y0, tk.y1, moveP)),
+        r3(undim(tk.line0)),
+        -1,
+        mixColor(tk.color0, tk.color1, moveP),
+      ];
     }
     if (tk.kind === "removed") {
-      return [r2(tk.x0), r2(tk.y0 - lh * 0.25 * exitP), r3(1 - exitP), -1, tk.color0];
+      return [r2(tk.x0), r2(tk.y0 - lh * 0.25 * exitP), r3((1 - exitP) * undim(tk.line0)), -1, tk.color0];
     }
     if (seg.typing) {
       const visible = Math.max(0, Math.min(tk.length, Math.floor(typedNow - tk.typeAt)));
@@ -376,6 +443,17 @@ export function frameAt(timeline: Timeline, t: number): FrameState {
   const glowStart = seg.typing ? seg.enter[1] : seg.duration * 0.7;
   const glowP = r3(easeOutCubic(progress(local, [glowStart, seg.duration])));
 
+  // Rows both steps have stay; extra rows of the old step fade out and new ones fade in.
+  const lineNumbers: Array<[number, number]> = [];
+  if (numbers) {
+    for (let row = 0; row < Math.max(seg.linesFrom, seg.linesTo); row++) {
+      const inFrom = row < seg.linesFrom;
+      const inTo = row < seg.linesTo;
+      const opacity = inFrom && inTo ? undim(row) : inFrom ? (1 - moveP) * undim(row) : moveP;
+      lineNumbers.push([row, r3(opacity)]);
+    }
+  }
+
   return {
     segment: index,
     offsetY: r2(lerp(seg.offsetFrom, seg.offsetTo, moveP)),
@@ -384,6 +462,7 @@ export function frameAt(timeline: Timeline, t: number): FrameState {
     caret,
     captions,
     filename: seg.filename ?? "",
+    lineNumbers,
   };
 }
 

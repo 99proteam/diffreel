@@ -1,5 +1,6 @@
 // Live playground: runs the real diffreel engine (Shiki tokens -> diff -> timeline -> scene HTML)
 // in the browser and plays it back frame by frame. Only the ffmpeg encoding step stays in the CLI.
+import { gutterColumns } from "../../src/focus.js";
 import { charCount, createTokenizer, listThemes } from "../../src/highlight.js";
 import { computeLayout } from "../../src/layout.js";
 import { buildHtml } from "../../src/page.js";
@@ -18,6 +19,8 @@ interface Settings {
   window: boolean;
   typing: boolean;
   highlightChanges: boolean;
+  lineNumbers?: boolean;
+  focusChanges?: boolean;
   transition: number;
   hold: number;
   filename: string;
@@ -82,7 +85,7 @@ function initControls() {
       schedule();
     });
   }
-  for (const id of ["window", "typing", "highlightChanges"]) {
+  for (const id of ["window", "typing", "highlightChanges", "lineNumbers", "focusChanges"]) {
     $(id).addEventListener("change", () => {
       readControls();
       schedule();
@@ -127,6 +130,8 @@ function loadSettings(next: Settings) {
   $<HTMLInputElement>("window").checked = settings.window;
   $<HTMLInputElement>("typing").checked = settings.typing;
   $<HTMLInputElement>("highlightChanges").checked = settings.highlightChanges;
+  $<HTMLInputElement>("lineNumbers").checked = settings.lineNumbers ?? false;
+  $<HTMLInputElement>("focusChanges").checked = settings.focusChanges ?? false;
   $<HTMLInputElement>("transition").value = String(settings.transition);
   $<HTMLInputElement>("hold").value = String(settings.hold);
   $("transition-value").textContent = `${settings.transition} ms`;
@@ -145,6 +150,8 @@ function readControls() {
   settings.window = $<HTMLInputElement>("window").checked;
   settings.typing = $<HTMLInputElement>("typing").checked;
   settings.highlightChanges = $<HTMLInputElement>("highlightChanges").checked;
+  settings.lineNumbers = $<HTMLInputElement>("lineNumbers").checked;
+  settings.focusChanges = $<HTMLInputElement>("focusChanges").checked;
   settings.transition = Number($<HTMLInputElement>("transition").value);
   settings.hold = Number($<HTMLInputElement>("hold").value);
 }
@@ -231,10 +238,12 @@ async function rebuild() {
 
     const size = parseSize(settings.size);
     const hasCaption = steps.some((s) => s.caption);
+    const maxLines = Math.max(1, ...lines.map((l) => l.length));
+    const gutter = settings.lineNumbers ? gutterColumns(maxLines) : 0;
     const layout = computeLayout({
       ...size,
-      maxCols: Math.max(1, ...lines.flatMap((step) => step.map((l) => charCount(l.text)))),
-      maxLines: Math.max(1, ...lines.map((l) => l.length)),
+      maxCols: Math.max(1, ...lines.flatMap((step) => step.map((l) => charCount(l.text)))) + gutter,
+      maxLines,
       hasCaption,
       window: settings.window,
       charRatio,
@@ -250,9 +259,17 @@ async function rebuild() {
       layout,
       typing: settings.typing,
       highlightChanges: settings.highlightChanges,
+      lineNumbers: settings.lineNumbers,
+      focusChanges: settings.focusChanges,
     });
 
-    const html = buildHtml({ layout, fontCss, theme: tokenizer.theme, background: settings.background });
+    const html = buildHtml({
+      layout,
+      fontCss,
+      theme: tokenizer.theme,
+      background: settings.background,
+      lineNumberDigits: gutter > 0 ? gutter - 2 : 0,
+    });
     const iframe = document.createElement("iframe");
     iframe.className = "scene";
     iframe.title = "diffreel preview";
@@ -340,6 +357,8 @@ function stepsJson(): string {
     window: settings.window,
     typing: settings.typing,
     highlightChanges: settings.highlightChanges,
+    lineNumbers: settings.lineNumbers || undefined,
+    focusChanges: settings.focusChanges || undefined,
     transition: settings.transition,
     hold: settings.hold,
     background: settings.background,

@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <a href="https://buymeacoffee.com/99proteam"><img src="https://img.shields.io/badge/☕_Sponsor_diffreel-Buy_me_a_coffee-FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=000" alt="Sponsor diffreel on Buy Me a Coffee" height="48"></a>
+  <a href="https://github.com/sponsors/99proteam"><img src="https://img.shields.io/badge/💖_Sponsor_diffreel-GitHub_Sponsors-db61a2?style=for-the-badge&logo=githubsponsors&logoColor=white" alt="Sponsor diffreel on GitHub Sponsors" height="48"></a>
 </p>
 
 <p align="center">
@@ -152,6 +152,8 @@ await render({
 | `--typing` | `typing` | off | Type new code character by character instead of fading it in. |
 | `--typing-speed <cps>` | `typingSpeed` | `40` | Typing speed in characters per second. |
 | `--highlight-changes` | `highlightChanges` | off | Briefly glow the changed lines after each transition. |
+| `--line-numbers` | `lineNumbers` | off | Show line numbers in a gutter that scrolls with the code. |
+| `--focus-changes` | `focusChanges` | off | Dim everything except the lines each step changes. |
 | `--caption <text>` | `caption` / `step.caption` | none | Text shown under the code. |
 | `--window` | `window` | off | macOS-style window frame with a file name tab. |
 | `--title <name>` | `title` / `step.filename` | file name | Name shown in the window tab. |
@@ -163,7 +165,21 @@ await render({
 | `-q, --quiet` | none | off | No progress output. |
 | `--list-themes` | `listThemes()` | none | Print all theme names. |
 
-`--no-typing`, `--no-window` and `--no-highlight-changes` override a steps file that turns those on.
+`--no-typing`, `--no-window`, `--no-highlight-changes`, `--no-line-numbers` and `--no-focus-changes` override a steps file that turns those on.
+
+### Focus on specific lines
+
+Give any step in a steps file a `focus` to keep those lines bright while the rest of the code dims to 30%. Use 1-based line numbers: `"focus": "3"`, `"focus": "2-4, 8"` or `"focus": [2, 3, 4]`. In long files the view also scrolls to the focused lines. With `--focus-changes`, every step without its own `focus` dims everything except the lines it changed.
+
+```json
+{
+  "lineNumbers": true,
+  "steps": [
+    { "file": "before.ts" },
+    { "file": "after.ts", "focus": "1, 7", "caption": "Add types and export it" }
+  ]
+}
+```
 
 ## Size presets
 
@@ -218,10 +234,12 @@ npm run examples   # writes examples/output/*.mp4
 ## Support this project
 
 <p align="center">
-  <a href="https://buymeacoffee.com/99proteam"><img src="https://img.shields.io/badge/☕_Buy_me_a_coffee-Support_diffreel-FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=000" alt="Buy me a coffee" height="56"></a>
+  <a href="https://github.com/sponsors/99proteam"><img src="https://img.shields.io/badge/💖_Sponsor_on_GitHub-Goal_$5k%2Fmonth-db61a2?style=for-the-badge&logo=githubsponsors&logoColor=white&labelColor=0d1117" alt="Sponsor diffreel on GitHub" height="56"></a>
 </p>
 
-diffreel is free and MIT-licensed. If it saves you editing time, you can support its development on **[Buy Me a Coffee](https://buymeacoffee.com/99proteam)**:
+diffreel is free and MIT-licensed. If it saves you editing time, please become a sponsor on **[GitHub Sponsors](https://github.com/sponsors/99proteam)**. Our goal is **$5,000 a month** so diffreel can be maintained full time and ship voice-over, cursor highlights and the VS Code extension sooner. You can also support it on [Buy Me a Coffee](https://buymeacoffee.com/99proteam).
+
+Monthly supporters get:
 
 | Tier | Monthly | What you get |
 | --- | --- | --- |

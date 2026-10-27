@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- `--line-numbers` / `lineNumbers`: a line-number gutter that scrolls with the code; numbers of added or removed lines fade in and out.
+- Focus and dim: a per-step `focus` (`"2-4, 8"` or `[2, 3, 4]`) keeps those lines bright while the rest dims, and scrolls long files to them. `--focus-changes` focuses each step on the lines it changed.
+- Both options in the live playground.
+- GitHub Sponsors is now the main way to support the project (goal: $5,000/month).
+
 ## [0.1.0] - 2026-10-05
 
 ### Added

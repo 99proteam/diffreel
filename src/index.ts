@@ -5,6 +5,7 @@ export { createTokenizer, listThemes, normalizeCode, splitPieces, type CodeLine,
 export { alignLines, matchTokens, planTransition, type LineAlignment, type TokenMatch, type TransitionPlan } from "./diff.js";
 export { computeLayout, stepOffsetY, type Layout } from "./layout.js";
 export { buildTimeline, frameAt, type FrameState, type Timeline } from "./timeline.js";
+export { parseFocus } from "./focus.js";
 export { parseSteps, loadStepsFile, StepsFileError, type ParsedStepsFile, type StepsFileOptions } from "./inputs/steps-file.js";
 export { loadGitSteps, parseGitRange, type GitRange, type GitStepsOptions } from "./inputs/git.js";
 export type { OutputFormat, RenderOptions, RenderProgress, RenderResult, SizeInput, SizePreset, Step } from "./types.js";

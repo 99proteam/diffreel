@@ -65,6 +65,17 @@ describe("parseSteps", () => {
     const failing = { baseDir: "/", readFile: () => { throw new Error("ENOENT"); } };
     expect(() => parseSteps({ steps: [{ file: "missing.ts" }] }, failing)).toThrow(/steps\[0\]\.file: cannot read "missing.ts"/);
   });
+
+  it("accepts a focus per step and the line number / focus switches", () => {
+    const parsed = parseSteps({ lineNumbers: true, focusChanges: false, steps: [{ code: "a", focus: "1" }, { code: ["a", "b"], focus: [2] }] }, ctx);
+    expect(parsed.options).toMatchObject({ lineNumbers: true, focusChanges: false });
+    expect(parsed.steps.map((s) => s.focus)).toEqual(["1", [2]]);
+  });
+
+  it("rejects malformed focus values", () => {
+    expect(() => parseSteps({ steps: [{ code: "a", focus: "x" }] }, ctx)).toThrow(/steps\[0\]\.focus/);
+    expect(() => parseSteps({ steps: [{ code: "a", focus: true }] }, ctx)).toThrow(/focus must be/);
+  });
 });
 
 describe("loadStepsFile", () => {
