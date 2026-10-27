@@ -233,7 +233,7 @@ npm run examples   # writes examples/output/*.mp4
 
 ## Support this project
 
-[![GitHub Sponsors](https://img.shields.io/github/sponsors/99proteam?label=sponsors&logo=githubsponsors&logoColor=white&color=db61a2)](https://github.com/sponsors/99proteam) **Goal: $5,000/month** · [see live progress](https://github.com/sponsors/99proteam)
+[![GitHub Sponsors](https://img.shields.io/github/sponsors/99proteam?label=sponsors&logo=githubsponsors&logoColor=white&color=db61a2)](https://github.com/sponsors/99proteam) [![Monthly goal](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2F99proteam%2FSelfDeploy%2Fmain%2F.github%2Fbadges%2Fsponsor-goal.json)](https://github.com/sponsors/99proteam) · [see live progress](https://github.com/sponsors/99proteam)
 
 <p align="center">
   <a href="https://github.com/sponsors/99proteam"><img src="https://img.shields.io/badge/💖_Sponsor_on_GitHub-Goal_$5k%2Fmonth-db61a2?style=for-the-badge&logo=githubsponsors&logoColor=white&labelColor=0d1117" alt="Sponsor diffreel on GitHub" height="56"></a>
