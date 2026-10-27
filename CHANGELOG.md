@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-10-27
+
+### Fixed
+
+- Release workflow pins npm 11 so ffmpeg-static installs its binary (0.2.0 was never published to npm; this release contains its features).
+
 ## [0.2.0] - 2026-10-27
 
 ### Added
@@ -30,6 +36,7 @@ All notable changes to this project are documented here. The format follows
 - Five examples, a Vitest suite and an end-to-end render test.
 - Live playground website (https://99proteam.github.io/diffreel/) that runs the same engine in the browser and exports `steps.json`.
 
-[Unreleased]: https://github.com/99proteam/diffreel/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/99proteam/diffreel/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/99proteam/diffreel/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/99proteam/diffreel/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/99proteam/diffreel/releases/tag/v0.1.0
