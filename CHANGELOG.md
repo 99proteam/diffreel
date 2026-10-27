@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-27
+
 ### Added
 
 - `--line-numbers` / `lineNumbers`: a line-number gutter that scrolls with the code; numbers of added or removed lines fade in and out.
@@ -28,5 +30,6 @@ All notable changes to this project are documented here. The format follows
 - Five examples, a Vitest suite and an end-to-end render test.
 - Live playground website (https://99proteam.github.io/diffreel/) that runs the same engine in the browser and exports `steps.json`.
 
-[Unreleased]: https://github.com/99proteam/diffreel/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/99proteam/diffreel/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/99proteam/diffreel/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/99proteam/diffreel/releases/tag/v0.1.0

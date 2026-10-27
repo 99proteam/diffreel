@@ -1,6 +1,6 @@
 {
   "name": "diffreel",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Turn code changes into smooth animated videos (MP4, WebM, GIF) for tutorials, YouTube, reels and social posts.",
   "keywords": [
     "code-animation",
